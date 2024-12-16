@@ -12,6 +12,8 @@
   "devDependencies": {
     "@testcontainers/postgresql": "^10.16.0",
     "@testcontainers/redis": "^10.16.0",
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "typescript": "^5.7.2"
   }
 }
