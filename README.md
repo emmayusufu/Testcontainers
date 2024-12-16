@@ -19,7 +19,6 @@ This repository demonstrates how to **automate integration testing** in **Node.j
 6. [How It Works](#how-it-works)
 7. [Running the Tests](#running-the-tests)
 8. [CI/CD Integration](#cicd-integration)
-9. [License](#license)
 
 ---
 
