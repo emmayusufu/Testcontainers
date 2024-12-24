@@ -18,7 +18,7 @@ app.use(
 );
 
 // Get all users
-app.get("/users", async (_req, res) => {
+app.get("/users", async (req: Request, res: Response) => {
   try {
     const pool = db.getPool();
     const result = await pool.query("SELECT * FROM users ORDER BY id");
@@ -29,9 +29,8 @@ app.get("/users", async (_req, res) => {
 });
 
 // Get user by ID
-app.get("/users/:id", async (req, res) => {
+app.get("/users/:id", async (req: Request, res: Response) => {
   try {
-    // Check cache first
     const redisClient = redis.getClient();
     const cached = await redisClient.get(`user:${req.params.id}`);
     if (cached) {
@@ -47,12 +46,11 @@ app.get("/users/:id", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Cache the result
     await redisClient.set(
       `user:${req.params.id}`,
       JSON.stringify(result.rows[0]),
       {
-        EX: 3600, // 1 hour
+        EX: 3600,
       }
     );
 
@@ -63,7 +61,7 @@ app.get("/users/:id", async (req, res) => {
 });
 
 // Create user
-app.post("/users", async (req, res) => {
+app.post("/users", async (req: Request, res: Response) => {
   const { name, email } = req.body;
 
   if (!name || !email) {
@@ -83,7 +81,7 @@ app.post("/users", async (req, res) => {
 });
 
 // Update user
-app.put("/users/:id", async (req, res) => {
+app.put("/users/:id", async (req: Request, res: Response) => {
   const { name, email } = req.body;
 
   if (!name && !email) {
@@ -112,7 +110,7 @@ app.put("/users/:id", async (req, res) => {
 });
 
 // Delete user
-app.delete("/users/:id", async (req, res) => {
+app.delete("/users/:id", async (req: Request, res: Response) => {
   try {
     const pool = db.getPool();
     const result = await pool.query(

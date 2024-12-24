@@ -1,9 +1,9 @@
-# docker-compose.yml
 version: "3.8"
+
 services:
   app:
     build: .
-    container_name: my_app
+    container_name: my_app_container
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -20,22 +20,29 @@ services:
       - my_network
 
   postgres:
-    image: postgres:15
+    image: postgres
     container_name: my_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost -p 5432",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     restart: unless-stopped
+    shm_size: 128mb
     networks:
       - my_network
 

@@ -13,11 +13,11 @@ class DatabaseManager {
 
   private constructor() {
     this.pool = new Pool({
-      host: process.env.DB_HOST || "localhost",
-      port: parseInt(process.env.DB_PORT || "5432"),
-      user: process.env.DB_USER || "postgres",
-      password: process.env.DB_PASSWORD || "postgres",
-      database: process.env.DB_NAME || "testdb",
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT),
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
     });
   }
 
@@ -40,8 +40,8 @@ class DatabaseManager {
       });
     }
 
-    // Test connection
     const client = await this.pool.connect();
+    console.log("Database connected successfully");
     await client.query("SELECT NOW()");
     client.release();
   }
@@ -65,7 +65,7 @@ class RedisManager {
 
   private constructor() {
     this.client = createClient({
-      url: process.env.REDIS_URL || "redis://localhost:6379",
+      url: process.env.REDIS_URL,
     });
   }
 
@@ -85,6 +85,7 @@ class RedisManager {
     }
 
     await this.client.connect();
+    console.log("Redis connected successfully");
   }
 
   async disconnect(): Promise<void> {
