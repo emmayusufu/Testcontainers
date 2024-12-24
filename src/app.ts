@@ -2,9 +2,15 @@ import express, { Request, Response } from "express";
 import { db, redis } from "./managers";
 
 const app = express();
+
 app.use(express.json());
 
 // Error handler middleware
+/**
+ * Error handling middleware that catches errors during request processing.
+ * Logs the error stack and responds with a 500 status code and a generic error message.
+ *
+ */
 app.use(
   (
     err: Error,
@@ -17,7 +23,12 @@ app.use(
   }
 );
 
-// Get all users
+/**
+ * Get all users.
+ *
+ * This route fetches all users from the database and returns them as a JSON response.
+ * If an error occurs during the database query, a 500 status code and an error message are returned.
+ */
 app.get("/users", async (req: Request, res: Response) => {
   try {
     const pool = db.getPool();
@@ -28,7 +39,14 @@ app.get("/users", async (req: Request, res: Response) => {
   }
 });
 
-// Get user by ID
+/**
+ * Get a user by ID.
+ *
+ * This route fetches a specific user by ID from the database. If the user is found in Redis cache, it is returned from there.
+ * If not, it queries the database and caches the result in Redis for future use.
+ * If the user is not found, a 404 status code is returned.
+ *
+ */
 app.get("/users/:id", async (req: Request, res: Response) => {
   try {
     const redisClient = redis.getClient();
@@ -50,7 +68,7 @@ app.get("/users/:id", async (req: Request, res: Response) => {
       `user:${req.params.id}`,
       JSON.stringify(result.rows[0]),
       {
-        EX: 3600,
+        EX: 3600, // Cache expiration time in seconds (1 hour)
       }
     );
 
@@ -60,7 +78,14 @@ app.get("/users/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Create user
+/**
+ * Create a new user.
+ *
+ * This route allows the creation of a new user by providing the `name` and `email` in the request body.
+ * If any required fields are missing, a 400 status code is returned with an error message.
+ * On success, the new user is inserted into the database and returned as a JSON object.
+ *
+ */
 app.post("/users", async (req: Request, res: Response) => {
   const { name, email } = req.body;
 
@@ -80,7 +105,13 @@ app.post("/users", async (req: Request, res: Response) => {
   }
 });
 
-// Update user
+/**
+ * Update an existing user by ID.
+ *
+ * This route allows updating an existing user's `name` and/or `email`. If neither field is provided, a 400 status code is returned.
+ * On success, the updated user is returned. If no user is found by the provided ID, a 404 status code is returned.
+ *
+ */
 app.put("/users/:id", async (req: Request, res: Response) => {
   const { name, email } = req.body;
 
@@ -99,7 +130,7 @@ app.put("/users/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Invalidate cache
+    // Invalidate cache after update
     const redisClient = redis.getClient();
     await redisClient.del(`user:${req.params.id}`);
 
@@ -109,7 +140,12 @@ app.put("/users/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Delete user
+/**
+ * Delete a user by ID.
+ *
+ * This route deletes an existing user from the database by the given ID. If the user is successfully deleted,
+ * a success message is returned. If no user is found by the provided ID, a 404 status code is returned.
+ */
 app.delete("/users/:id", async (req: Request, res: Response) => {
   try {
     const pool = db.getPool();
@@ -122,7 +158,7 @@ app.delete("/users/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Invalidate cache
+    // Invalidate cache after deletion
     const redisClient = redis.getClient();
     await redisClient.del(`user:${req.params.id}`);
 
@@ -132,4 +168,5 @@ app.delete("/users/:id", async (req: Request, res: Response) => {
   }
 });
 
+// Export the Express app for use in other modules
 export default app;
