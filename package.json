@@ -4,10 +4,10 @@
   "description": "This repository demonstrates how to **automate integration testing** in **Node.js** using **Testcontainers**. By leveraging **Dockerized services** (such as PostgreSQL in this case), you can spin up isolated environments for your tests, ensuring that your tests are **clean**, **repeatable**, and **reliable**. Testcontainers takes care of setting up and tearing down external dependencies like databases, so you can focus on writing tests without worrying about environment management.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -L --exec ts-node src/server.ts",
+    "dev": "node --import tsx --watch src/server.ts",
     "up": "docker compose -f docker-compose.yaml up",
     "down": "docker compose -f docker-compose.yaml down -v",
-    "test": ""
+    "test": "node --import tsx --test src/app.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,7 @@
     "nodemon": "^3.1.9",
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },
   "dependencies": {
