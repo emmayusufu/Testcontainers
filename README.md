@@ -1,6 +1,6 @@
 # Node.js Integration Testing with Testcontainers
 
-his repository demonstrates how to **automate integration testing** in **Node.js** using **Testcontainers** and the ** Node Test Runner**.
+his repository demonstrates how to **automate integration testing** in **Node.js** using **Testcontainers** and the **Node Test Runner**.
 
 ## Features
 
