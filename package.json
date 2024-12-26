@@ -1,17 +1,28 @@
 {
   "name": "testcontainer-nodejs",
   "version": "1.0.0",
-  "description": "This repository demonstrates how to **automate integration testing** in **Node.js** using **Testcontainers**. By leveraging **Dockerized services** (such as PostgreSQL in this case), you can spin up isolated environments for your tests, ensuring that your tests are **clean**, **repeatable**, and **reliable**. Testcontainers takes care of setting up and tearing down external dependencies like databases, so you can focus on writing tests without worrying about environment management.",
+  "description": "This repository demonstrates how to **automate integration testing** in **Node.js** using **Testcontainers** and the ** Node Test Runner**.",
   "main": "index.js",
   "scripts": {
     "dev": "node --import tsx --watch --env-file=.env src/server.ts",
-    "up:build": "docker compose -f docker-compose.yaml up --build",
+    "up:build": "docker compose -f --env-file=.env docker-compose.yaml up --build",
     "up": "docker compose -f docker-compose.yaml up",
     "down": "docker compose -f docker-compose.yaml down -v",
     "test": "node --import tsx --test src/app.test.ts"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "testcontainers",
+    "integration-testing",
+    "nodejs",
+    "docker",
+    "postgresql",
+    "redis"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emmayusufu/Testcontainers.git"
+  },
+  "author": "Emmanuel Yusufu Kimaswa",
   "license": "ISC",
   "devDependencies": {
     "@testcontainers/postgresql": "^10.16.0",

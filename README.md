@@ -1,6 +1,6 @@
 # Node.js Integration Testing with Testcontainers
 
-This project demonstrates how to implement automated integration testing in Node.js using Testcontainers, Express, PostgreSQL, and Redis. It provides a robust example of building a RESTful API with proper testing practices and containerized dependencies.
+his repository demonstrates how to **automate integration testing** in **Node.js** using **Testcontainers** and the ** Node Test Runner**.
 
 ## Features
 
@@ -26,6 +26,7 @@ This project demonstrates how to implement automated integration testing in Node
 POSTGRES_USER=your_user
 POSTGRES_PASSWORD=your_password
 POSTGRES_DB=your_database
+POSTGRES_PORT
 ```
 
 3. Install dependencies:
@@ -137,15 +138,3 @@ Test features include:
 - Isolated test containers for each test run
 - Automatic cleanup between tests
 - Comprehensive API testing coverage
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the ISC License.
