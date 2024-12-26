@@ -26,7 +26,6 @@ his repository demonstrates how to **automate integration testing** in **Node.js
 POSTGRES_USER=your_user
 POSTGRES_PASSWORD=your_password
 POSTGRES_DB=your_database
-POSTGRES_PORT
 ```
 
 3. Install dependencies:
