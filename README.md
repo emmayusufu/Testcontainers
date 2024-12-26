@@ -50,12 +50,6 @@ npm run up
 npm run down
 ```
 
-**Without Docker (Development):**
-
-```bash
-npm run dev
-```
-
 ## API Endpoints
 
 ### Users API
