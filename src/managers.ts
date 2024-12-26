@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Client, QueryResult } from "pg";
 import { RedisContainer, StartedRedisContainer } from "@testcontainers/redis";
 import {
   PostgreSqlContainer,
@@ -8,17 +8,18 @@ import { createClient, RedisClientType } from "redis";
 
 class DatabaseManager {
   private static instance: DatabaseManager | null = null;
-  private pool: Pool;
+  private client: Client;
   private testContainer?: StartedPostgreSqlContainer;
 
   private constructor() {
-    this.pool = new Pool({
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    });
+    const config = {
+      host: process.env.POSTGRES_HOST,
+      port: parseInt(process.env.POSTGRES_PORT),
+      user: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+    };
+    this.client = new Client(config);
   }
 
   static getInstance(): DatabaseManager {
@@ -31,7 +32,7 @@ class DatabaseManager {
   async connect(isTest = false): Promise<void> {
     if (isTest) {
       this.testContainer = await new PostgreSqlContainer().start();
-      this.pool = new Pool({
+      this.client = new Client({
         host: this.testContainer.getHost(),
         port: this.testContainer.getPort(),
         user: this.testContainer.getUsername(),
@@ -40,21 +41,32 @@ class DatabaseManager {
       });
     }
 
-    const client = await this.pool.connect();
+    await this.client.connect();
     console.log("Database connected successfully");
-    await client.query("SELECT NOW()");
-    client.release();
+    const createUsersTableQuery = `
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+    await this.client.query(createUsersTableQuery);
   }
 
   async disconnect(): Promise<void> {
-    await this.pool.end();
+    await this.client.end();
     if (this.testContainer) {
       await this.testContainer.stop();
     }
   }
 
-  getPool(): Pool {
-    return this.pool;
+  getClient() {
+    return this.client;
+  }
+
+  clearTable(tableName: string = "users"): Promise<QueryResult<any>> {
+    return this.client.query(`DELETE FROM ${tableName}`);
   }
 }
 

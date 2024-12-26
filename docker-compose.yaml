@@ -3,19 +3,18 @@ services:
     build: .
     container_name: my_app_container
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_NAME: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       REDIS_URL: redis://redis:6379
+    ports:
+      - "8000:8000"
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - my_network
+      - postgres
+      - redis
+    command: npm run dev
 
   postgres:
     image: postgres
@@ -39,13 +38,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    restart: unless-stopped
     shm_size: 128mb
-    networks:
-      - my_network
 
   redis:
-    image: redis:7
+    image: redis/redis-stack
     container_name: my_redis
     ports:
       - "6379:6379"
@@ -54,12 +50,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
-    networks:
-      - my_network
 
 volumes:
   postgres_data:
-
-networks:
-  my_network:

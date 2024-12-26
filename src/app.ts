@@ -4,8 +4,8 @@ import { db, redis } from "./managers";
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Error handler middleware
 /**
  * Error handling middleware that catches errors during request processing.
  * Logs the error stack and responds with a 500 status code and a generic error message.
@@ -31,11 +31,11 @@ app.use(
  */
 app.get("/users", async (req: Request, res: Response) => {
   try {
-    const pool = db.getPool();
+    const pool = db.getClient();
     const result = await pool.query("SELECT * FROM users ORDER BY id");
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch users" });
+    res.status(500).json({ error: "Failed to fetch users" + err });
   }
 });
 
@@ -55,7 +55,7 @@ app.get("/users/:id", async (req: Request, res: Response) => {
       return res.json(JSON.parse(cached));
     }
 
-    const pool = db.getPool();
+    const pool = db.getClient();
     const result = await pool.query("SELECT * FROM users WHERE id = $1", [
       req.params.id,
     ]);
@@ -68,7 +68,7 @@ app.get("/users/:id", async (req: Request, res: Response) => {
       `user:${req.params.id}`,
       JSON.stringify(result.rows[0]),
       {
-        EX: 3600, // Cache expiration time in seconds (1 hour)
+        EX: 3600,
       }
     );
 
@@ -94,7 +94,7 @@ app.post("/users", async (req: Request, res: Response) => {
   }
 
   try {
-    const pool = db.getPool();
+    const pool = db.getClient();
     const result = await pool.query(
       "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *",
       [name, email]
@@ -120,7 +120,7 @@ app.put("/users/:id", async (req: Request, res: Response) => {
   }
 
   try {
-    const pool = db.getPool();
+    const pool = db.getClient();
     const result = await pool.query(
       "UPDATE users SET name = COALESCE($1, name), email = COALESCE($2, email) WHERE id = $3 RETURNING *",
       [name, email, req.params.id]
@@ -148,7 +148,7 @@ app.put("/users/:id", async (req: Request, res: Response) => {
  */
 app.delete("/users/:id", async (req: Request, res: Response) => {
   try {
-    const pool = db.getPool();
+    const pool = db.getClient();
     const result = await pool.query(
       "DELETE FROM users WHERE id = $1 RETURNING *",
       [req.params.id]
@@ -158,15 +158,13 @@ app.delete("/users/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Invalidate cache after deletion
     const redisClient = redis.getClient();
     await redisClient.del(`user:${req.params.id}`);
 
-    res.json({ message: "User deleted successfully" });
+    res.status(204).json({ message: "User deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete user" });
   }
 });
 
-// Export the Express app for use in other modules
 export default app;
